@@ -17,28 +17,39 @@ namespace Grade_Computation_System
             InitializeComponent();
         }
 
+        // ================= SAFE INPUT =================
         double GetValue(TextBox txt)
         {
-            double val;
-            return double.TryParse(txt.Text, out val) ? val : 0;
+            try
+            {
+                return Convert.ToDouble(txt.Text);
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
-        // ===================== PRELIM =====================
+        // ================= PRELIM =================
         double ComputePrelim()
         {
-            double classPerf = (
-                GetValue(txtPrelimA1Score) +
-                GetValue(txtPrelimA2Score) +
-                GetValue(txtPrelimS1Score) +
-                GetValue(txtPrelimS2Score) +
-                GetValue(txtPrelimR1Score) +
-                GetValue(txtPrelimR2Score)
-            ) / 6 * 0.10;
+            TextBox[] classPerf =
+            {
+                txtPrelimA1Score, txtPrelimA2Score,
+                txtPrelimS1Score, txtPrelimS2Score,
+                txtPrelimR1Score, txtPrelimR2Score
+            };
 
-            double lab = (
-                GetValue(txtPrelimL1Score) +
-                GetValue(txtPrelimL2Score)
-            ) / 2 * 0.10;
+            double sum = 0;
+
+            for (int i = 0; i < classPerf.Length; i++)
+            {
+                sum += GetValue(classPerf[i]);
+            }
+
+            double classPerfAvg = (sum / classPerf.Length) * 0.10;
+
+            double lab = (GetValue(txtPrelimL1Score) + GetValue(txtPrelimL2Score)) / 2 * 0.10;
 
             double quiz = (
                 GetValue(txtPrelimQ1Score) +
@@ -53,25 +64,29 @@ namespace Grade_Computation_System
 
             double written = GetValue(txtPrelimEScore) * 0.40;
 
-            return classPerf + lab + quiz + labExam + written;
+            return classPerfAvg + lab + quiz + labExam + written;
         }
 
-        // ===================== MIDTERM =====================
+        // ================= MIDTERM =================
         double ComputeMidterm()
         {
-            double classPerf = (
-                GetValue(txtMidtermA1Score) +
-                GetValue(txtMidtermA2Score) +
-                GetValue(txtMidtermS1Score) +
-                GetValue(txtMidtermS2Score) +
-                GetValue(txtMidtermR1Score) +
-                GetValue(txtMidtermR2Score)
-            ) / 6 * 0.10;
+            TextBox[] classPerf =
+            {
+                txtMidtermA1Score, txtMidtermA2Score,
+                txtMidtermS1Score, txtMidtermS2Score,
+                txtMidtermR1Score, txtMidtermR2Score
+            };
 
-            double lab = (
-                GetValue(txtMidtermL1Score) +
-                GetValue(txtMidtermL2Score)
-            ) / 2 * 0.10;
+            double sum = 0;
+
+            for (int i = 0; i < classPerf.Length; i++)
+            {
+                sum += GetValue(classPerf[i]);
+            }
+
+            double classPerfAvg = (sum / classPerf.Length) * 0.10;
+
+            double lab = (GetValue(txtMidtermL1Score) + GetValue(txtMidtermL2Score)) / 2 * 0.10;
 
             double quiz = (
                 GetValue(txtMidtermQ1Score) +
@@ -86,25 +101,29 @@ namespace Grade_Computation_System
 
             double written = GetValue(txtMidtermEScore) * 0.40;
 
-            return classPerf + lab + quiz + labExam + written;
+            return classPerfAvg + lab + quiz + labExam + written;
         }
 
-        // ===================== FINALS =====================
+        // ================= FINALS =================
         double ComputeFinals()
         {
-            double classPerf = (
-                GetValue(txtFinalsA1Score) +
-                GetValue(txtFinalsA2Score) +
-                GetValue(txtFinalsS1Score) +
-                GetValue(txtFinalsS2Score) +
-                GetValue(txtFinalsR1Score) +
-                GetValue(txtFinalsR2Score)
-            ) / 6 * 0.05;
+            TextBox[] classPerf =
+            {
+                txtFinalsA1Score, txtFinalsA2Score,
+                txtFinalsS1Score, txtFinalsS2Score,
+                txtFinalsR1Score, txtFinalsR2Score
+            };
 
-            double lab = (
-                GetValue(txtFinalsL1Score) +
-                GetValue(txtFinalsL2Score)
-            ) / 2 * 0.10;
+            double sum = 0;
+
+            for (int i = 0; i < classPerf.Length; i++)
+            {
+                sum += GetValue(classPerf[i]);
+            }
+
+            double classPerfAvg = (sum / classPerf.Length) * 0.05;
+
+            double lab = (GetValue(txtFinalsL1Score) + GetValue(txtFinalsL2Score)) / 2 * 0.10;
 
             double quiz = (
                 GetValue(txtFinalsQ1Score) +
@@ -119,8 +138,9 @@ namespace Grade_Computation_System
 
             double written = GetValue(txtFinalsEScore) * 0.40;
 
-            return classPerf + lab + quiz + project + written;
+            return classPerfAvg + lab + quiz + project + written;
         }
+
         private void Form1_Load(object sender, EventArgs e)
         {
 
@@ -143,8 +163,15 @@ namespace Grade_Computation_System
 
         private void btnClear_Click(object sender, EventArgs e)
         {
-            foreach (Control c in this.Controls)
-                ClearTextBoxes(c);
+            Control[] ctrls = this.Controls.Find("", true);
+
+            for (int i = 0; i < ctrls.Length; i++)
+            {
+                if (ctrls[i] is TextBox)
+                {
+                    ctrls[i].Text = "";
+                }
+            }
         }
 
         void ClearTextBoxes(Control parent)
@@ -160,16 +187,42 @@ namespace Grade_Computation_System
 
         private void btnCompute_Click(object sender, EventArgs e)
         {
-            double prelim = ComputePrelim();
-            double midterm = ComputeMidterm();
-            double finals = ComputeFinals();
+            try
+            {
+                double prelim = ComputePrelim();
+                double midterm = ComputeMidterm();
+                double finals = ComputeFinals();
 
-            txtPrelimGrade.Text = prelim.ToString("0.00");
-            txtMidtermGrade.Text = midterm.ToString("0.00");
-            txtFinalsGrade.Text = finals.ToString("0.00");
+                txtPrelimGrade.Text = prelim.ToString("0.00");
+                txtMidtermGrade.Text = midterm.ToString("0.00");
+                txtFinalsGrade.Text = finals.ToString("0.00");
 
-            double finalGrade = (prelim * 0.30) + (midterm * 0.30) + (finals * 0.40);
-            txtFInalComputedGrade.Text = finalGrade.ToString("0.00");
+                double finalGrade = (prelim * 0.30) + (midterm * 0.30) + (finals * 0.40);
+
+                txtFInalComputedGrade.Text = finalGrade.ToString("0.00");
+
+                // IF-ELSE + NESTED IF
+                if (finalGrade >= 75)
+                {
+                    if (finalGrade >= 90)
+                    {
+                        MessageBox.Show("Excellent! High grade!");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Passed!");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+
         }
 
         private void ComputeGroup_Enter(object sender, EventArgs e)
